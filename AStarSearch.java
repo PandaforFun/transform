@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class AStarSearch {
+class Main {
     public static void main(String[] args) {
         int[][] initialPuzzle = {
                 {2, 8, 3},
