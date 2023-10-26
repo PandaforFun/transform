@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class jugAutomated
+class Main
 {
     static int[] jugs_start = new int[2];
     static int[] jugs = jugs_start;
