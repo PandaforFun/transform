@@ -1,4 +1,4 @@
-public class DFS {
+class Main {
     public static void dfs(int[][] graph, int startNode) {
         int n = graph.length;
         boolean[] visited = new boolean[n];
