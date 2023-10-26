@@ -1,109 +1,111 @@
-import java.util.Scanner;
+import java.util.*;
 
-public class jugAutomated
-{
-    static int[] jugs_start = new int[2];
-    static int[] jugs = jugs_start;
-    static int[] jugs_end = new int[2];
-    static int jug1_capacity,jug2_capacity;
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the capacity of jug 1: ");
-        jug1_capacity = sc.nextInt();
-        System.out.print("Enter the capacity of jug 2: ");
-        jug2_capacity = sc.nextInt();
-        System.out.print("Enter the starting filled state of jugs (jug1 jug2): ");
-        jugs_start[0] = sc.nextInt();
-        jugs_start[1] = sc.nextInt();
-        System.out.print("Enter the ending filled state of jugs (jug1 jug 2): ");
-        jugs_end[0] = sc.nextInt();
-        jugs_end[1] = sc.nextInt();
-        rules();
-    }
-    public static void rules()
-    {
-        Scanner sc1 = new Scanner(System.in);
-        int rule;
-        do {
-            System.out.print("Enter which rule you wish to choose: ");
-            rule = sc1.nextInt();
-            if(jugs[0] == jugs_end[0] && jugs[1] == jugs_end[1]){
-                System.out.printf("Congratulations the water in jug 2 is %d gallons\n",jugs[1]);
-                System.exit(0);}
-            switch (rule) {
-                case 1: {
-                    jugs[0] = jug1_capacity;
-                    System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    break;
-                }
-                case 2: {
-                    jugs[1] = jug2_capacity;
-                    System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    break;
-                }
-                case 3: {
-                    jugs[0] = 0;
-                    System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    break;
-                }
-                case 4: {
-                    jugs[1] = 0;
-                    System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    break;
-                }
-                case 5: {
-                    if (jugs[0] + jugs[1] >= jug1_capacity && jugs[1] > 0) {
-                        jugs[1] = jugs[1] - (jug1_capacity - jugs[0]);
-                        jugs[0] = jug1_capacity;
-                        System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    } else System.out.println("Invalid use of rule");
-                    break;
-                }
-                case 6: {
-                    if (jugs[0] + jugs[1] >= jug2_capacity && jugs[0] > 0) {
-                        jugs[0] = jugs[0] - (jug2_capacity - jugs[1]);
-                        jugs[1] = jug2_capacity;
-                        System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    } else System.out.println("Invalid use of rule");
-                    break;
-                }
-                case 7: {
-                    if (jugs[0] + jugs[1] <= jug1_capacity && jugs[1] > 0) {
-                        jugs[0] = jugs[0] + jugs[1];
-                        jugs[1] = 0;
-                        System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    } else System.out.println("Invalid use of rule");
-                    break;
-                }
-                case 8: {
-                    if (jugs[0] + jugs[1] <= jug2_capacity && jugs[0] > 0) {
-                        jugs[1] = jugs[1] + jugs[0];
-                        jugs[0] = 0;
-                        System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    } else System.out.println("Invalid use of rule");
-                    break;
-                }
-                case 9: {
-                    int remainingCapacityJug1 = jug1_capacity - jugs[0];
-                    if (jugs[1] >= remainingCapacityJug1 && jugs[0] < jug1_capacity) {
-                        jugs[1] -= remainingCapacityJug1;
-                        jugs[0] = jug1_capacity;
-                        System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    } else if (jugs[1] < remainingCapacityJug1 && jugs[0] < jug1_capacity) {
-                        jugs[0] += jugs[1];
-                        jugs[1] = 0;
-                        System.out.printf("Current water in jugs are %d and %d gallons\n", jugs[0], jugs[1]);
-                    } else {
-                        System.out.println("Invalid use of rule");
-                    }
+class Main {
+    public static List<Character> bestFirstSearch(Map<Character, List<Character>> adjacencyList, char startNode, char goalNode, Map<Character, Integer> heuristic) {
+        List<Character> path = new ArrayList<>();
+        Set<Character> openList = new HashSet<>();
+        Set<Character> closedList = new HashSet<>();
+        Map<Character, Character> parent = new HashMap<>();
 
-                    if (jugs[0] == jugs_end[0] && jugs[1] == jugs_end[1]) {
-                        System.out.printf("Congratulations the water in jug 1 is %d gallons and jug 2 is %d gallons\n", jugs[0],jugs[1]);
-                        System.exit(0);
-                    }
-                    break;
+        openList.add(startNode);
+
+        while (!openList.isEmpty()) {
+            char currentNode = selectNodeWithLowestHeuristic(openList, heuristic);
+            openList.remove(currentNode);
+            closedList.add(currentNode);
+
+            if (currentNode == goalNode) {
+                char node = goalNode;
+                while (node != startNode) {
+                    path.add(node);
+                    node = parent.get(node);
+                }
+                path.add(startNode);
+                Collections.reverse(path);
+                return path;
+            }
+
+            List<Character> neighbors = adjacencyList.getOrDefault(currentNode, Collections.emptyList());
+
+            for (char neighbor : neighbors) {
+                if (!closedList.contains(neighbor) && !openList.contains(neighbor)) {
+                    parent.put(neighbor, currentNode);
+                    openList.add(neighbor);
                 }
             }
-        }while (rule != 10) ;
+        }
+
+        return Collections.emptyList();
+    }
+    private static char selectNodeWithLowestHeuristic(Set<Character> openList, Map<Character, Integer> heuristic) {
+        char selectedNode = openList.iterator().next();
+        int lowestHeuristic = heuristic.get(selectedNode);
+
+        for (char node : openList) {
+            int nodeHeuristic = heuristic.get(node);
+            if (nodeHeuristic < lowestHeuristic) {
+                selectedNode = node;
+                lowestHeuristic = nodeHeuristic;
+            }
+        }
+        return selectedNode;
+    }
+
+    public static int calculatePathCost(List<Character> path, Map<Character, Integer> heuristicValues) {
+        int cost = 0;
+        for (int i = 0; i < path.size() - 1; i++) {
+            char currentNode = path.get(i);
+            char nextNode = path.get(i + 1);
+            cost += heuristicValues.get(currentNode);
+        }
+        cost += heuristicValues.get(path.get(path.size() - 1));
+        return cost;
+    }
+
+    public static void main(String[] args) {
+        Map<Character, List<Character>> adjacencyList = new HashMap<>();
+        adjacencyList.put('S', Arrays.asList('A', 'B', 'C'));
+        adjacencyList.put('A', Arrays.asList('D', 'E'));
+        adjacencyList.put('B', Arrays.asList('F', 'G'));
+        adjacencyList.put('C', Collections.singletonList('H'));
+        adjacencyList.put('D', Collections.singletonList('A'));
+        adjacencyList.put('E', Collections.singletonList('A'));
+        adjacencyList.put('F', Collections.singletonList('B'));
+        adjacencyList.put('G', Collections.singletonList('B'));
+        adjacencyList.put('H', Arrays.asList('I', 'J'));
+        adjacencyList.put('I', Arrays.asList('K', 'L', 'M'));
+        adjacencyList.put('J', Collections.singletonList('H'));
+        adjacencyList.put('K', Collections.singletonList('I'));
+        adjacencyList.put('L', Collections.singletonList('I'));
+        adjacencyList.put('M', Collections.singletonList('I'));
+
+        Map<Character, Integer> heuristicValues = new HashMap<>();
+        heuristicValues.put('S', 11);
+        heuristicValues.put('A', 7);
+        heuristicValues.put('B', 6);
+        heuristicValues.put('C', 5);
+        heuristicValues.put('D', 7);
+        heuristicValues.put('E', 6);
+        heuristicValues.put('F', 6);
+        heuristicValues.put('G', 6);
+        heuristicValues.put('H', 5);
+        heuristicValues.put('I', 4);
+        heuristicValues.put('J', 5);
+        heuristicValues.put('K', 3);
+        heuristicValues.put('L', 3);
+        heuristicValues.put('M', 3);
+
+        char startNode = 'S';
+        char goalNode = 'E';
+
+        List<Character> path = bestFirstSearch(adjacencyList, startNode, goalNode, heuristicValues);
+
+        if (!path.isEmpty()) {
+            System.out.println("Path from " + startNode + " to " + goalNode + ": " + path);
+            int cost = calculatePathCost(path, heuristicValues);
+            System.out.println("Cost of the path: " + cost);
+        } else {
+            System.out.println("No path found from " + startNode + " to " + goalNode);
+        }
     }
 }
