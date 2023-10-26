@@ -1,11 +1,11 @@
 import java.util.Scanner;
 
-public class TicTacToe {
+class Main {
     private char[][] board;
     private char currentPlayer;
     private boolean gameFinished;
 
-    public TicTacToe() {
+    public Main() {
         board = new char[3][3];
         currentPlayer = 'X';
         gameFinished = false;
