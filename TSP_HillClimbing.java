@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import java.util.Random;
 
-public class TSP_HillClimbing {
+class Main {
 
     public static void main(String[] args) {
         int[][] graph = {
